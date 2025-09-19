@@ -1,0 +1,54 @@
+# Python build artifacts
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# UV package manager
+# uv.lock  # DON'T ignore - commit this for reproducibility!
+
+# pytest
+.pytest_cache/
+
+# mypy
+.mypy_cache/
+
+# Coverage
+.coverage
+htmlcov/
+
+# Environment variables
+.env
