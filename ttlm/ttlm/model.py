@@ -6,6 +6,7 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor, nn
 
+
 class RMSNorm(nn.Module):
     """Root Mean Square Layer Normalization."""
 
@@ -21,6 +22,7 @@ class RMSNorm(nn.Module):
         """Applies RMS normalization to the input tensor."""
         output = self._norm(x.float()).type_as(x)
         return output * self.weight
+
 
 class SwiGLU(nn.Module):
     """Feedforward block with SwiGLU activation."""
@@ -54,7 +56,8 @@ class RotaryEmbedding(nn.Module):
 
         half_dim = head_dim // 2
         inv_freq = 1.0 / (
-            rope_theta ** (torch.arange(0, half_dim, dtype=torch.float32) * 2 / head_dim)
+            rope_theta
+            ** (torch.arange(0, half_dim, dtype=torch.float32) * 2 / head_dim)
         )
         self.register_buffer("inv_freq", inv_freq, persistent=False)
         self._cached_seq_len = 0
@@ -72,7 +75,9 @@ class RotaryEmbedding(nn.Module):
         """Updates the cache if the sequence length has changed."""
         if seq_len > self._cached_seq_len:
             self._cached_seq_len = seq_len
-            positions = torch.arange(seq_len, device=self.inv_freq.device, dtype=torch.float32)
+            positions = torch.arange(
+                seq_len, device=self.inv_freq.device, dtype=torch.float32
+            )
             freqs = torch.outer(positions, self.inv_freq)
             emb = torch.cat((freqs, freqs), dim=-1)
             self._cos_cache = emb.cos()
@@ -82,8 +87,12 @@ class RotaryEmbedding(nn.Module):
         """Applies RoPE to the query and key tensors."""
         _, _, seq_len, _ = q.shape
         self._update_cache(seq_len)
-        cos = self._cos_cache[:seq_len].to(q.dtype).unsqueeze(0).unsqueeze(0)  # Shape: [1, 1, seq_len, head_dim]
-        sin = self._sin_cache[:seq_len].to(q.dtype).unsqueeze(0).unsqueeze(0)  # Shape: [1, 1, seq_len, head_dim]
+        cos = (
+            self._cos_cache[:seq_len].to(q.dtype).unsqueeze(0).unsqueeze(0)
+        )  # Shape: [1, 1, seq_len, head_dim]
+        sin = (
+            self._sin_cache[:seq_len].to(q.dtype).unsqueeze(0).unsqueeze(0)
+        )  # Shape: [1, 1, seq_len, head_dim]
         q_rotated = (q * cos) + (self._rotate_half(q) * sin)
         k_rotated = (k * cos) + (self._rotate_half(k) * sin)
         return q_rotated, k_rotated
@@ -121,10 +130,8 @@ class Attention(nn.Module):
         k = self.k_proj(x).view(b, n, self.num_heads, self.head_dim).transpose(1, 2)
         v = self.v_proj(x).view(b, n, self.num_heads, self.head_dim).transpose(1, 2)
         q, k = self.rotary_emb(q, k)
-        q, k = self.scale_attention(q), self.scale_attention(k) # QK norm
-        attn_out = F.scaled_dot_product_attention(
-            q, k, v, is_causal=True
-        )
+        q, k = self.scale_attention(q), self.scale_attention(k)  # QK norm
+        attn_out = F.scaled_dot_product_attention(q, k, v, is_causal=True)
         attn_out = attn_out.transpose(1, 2).contiguous().view(b, n, self.hidden_dim)
         return self.dropout(self.o_proj(attn_out))
 
@@ -175,7 +182,7 @@ class Model(nn.Module):
         num_heads: int,
         ff_dim: int,
         dropout: float = 0.1,
-        softcap: float = 15.0
+        softcap: float = 15.0,
     ):
         super().__init__()
 
@@ -190,15 +197,17 @@ class Model(nn.Module):
         self.init_std = 0.02
         self.embeddings = nn.Embedding(vocab_size, hidden_dim)
 
-        self.blocks = nn.ModuleList([
-            TransformerBlock(
-                hidden_dim=hidden_dim,
-                num_heads=num_heads,
-                ff_dim=ff_dim,
-                dropout=dropout,
-            )
-            for _ in range(num_layers)
-        ])
+        self.blocks = nn.ModuleList(
+            [
+                TransformerBlock(
+                    hidden_dim=hidden_dim,
+                    num_heads=num_heads,
+                    ff_dim=ff_dim,
+                    dropout=dropout,
+                )
+                for _ in range(num_layers)
+            ]
+        )
 
         self.norm = RMSNorm(hidden_dim)
 
@@ -216,16 +225,16 @@ class Model(nn.Module):
                 nn.init.normal_(module.weight, mean=0.0, std=0.02)
                 if module.bias is not None:
                     nn.init.zeros_(module.bias)
-                    
+
     @property
     def num_parameters(self) -> int:
         """Number of parameters in the model."""
         return sum(p.numel() for p in self.parameters())
-    
+
     def to_ckpt(self, path: str) -> None:
         """Saves model state and config to a checkpoint file."""
         checkpoint = {
-            "state_dict": self.state_dict(),
+            "state_dict": self.cpu().state_dict(),
             "config": {
                 "vocab_size": self.vocab_size,
                 "hidden_dim": self.hidden_dim,
@@ -237,7 +246,7 @@ class Model(nn.Module):
             },
         }
         torch.save(checkpoint, path)
-    
+
     @classmethod
     def from_ckpt(cls, path: str) -> "Model":
         """Loads a model from a checkpoint file."""
