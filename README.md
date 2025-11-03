@@ -2,7 +2,7 @@
 
 A simple, hands-on course on language models. Learn by doing.
 
-## Quick Start
+## Quick Start (Local Setup)
 
 ```bash
 # Install UV
@@ -14,10 +14,20 @@ cd ttlm
 uv sync
 
 # Start learning
-uv run jupyter notebook
-```
+uv run python -m scripts.pretrain --experiment=default (or any other experiment, like default_cpu for cpu only job)
+
+
+## Using Google Colab
+
+1. Open a new notebook on colab and start a new runtime (GPU or CPU, recommended GPU)
+2. Run the following code in a cell: 
+
+```python
+
+
 
 ## Course Structure
+
 
 ```
 lm-course/

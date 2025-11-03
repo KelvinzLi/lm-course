@@ -1,42 +1,24 @@
 [project]
 dependencies = [
-    "cattrs>=25.2.0",
     "einops>=0.8.1",
-    "flash-attn>=2.8.3",
     "numpy>=1.20.0",
     "pandas>=2.3.3",
     "polars>=1.26.0",
-    "pyarrow>=20.0.0",
-    "pydantic>=2.0.0",
     "scipy>=1.16.2",
     "torch>=2.8.0",
-    "wandb>=0.22.1",
+    "pyyaml>=6.0"
 ]
-name = "lm"
+name = "ttlm"
 readme = "README.md"
 requires-python = ">=3.13"
 version = "0.1.0"
 
 [project.optional-dependencies]
 dev = [
-    "hypothesis>=6.0.0",
-    "nbstripout==0.8.1",
-    "pre-commit>=4.2.0",
-    "pytest-cov~=6.1",
-    "pytest-mock>=1.7.1, <2.0",
-    "pytest~=7.2",
     "ruff==0.11.7",
 ]
 docs = [
-    "Jinja2<3.2.0",
-    "docutils<0.21",
     "ipykernel>=5.3, <7.0",
-    "myst-parser>=1.0,<2.1",
-    "nbsphinx==0.8.1",
-    "sphinx-autodoc-typehints==1.20.2",
-    "sphinx>=5.3,<7.3",
-    "sphinx_copybutton==0.5.2",
-    "sphinx_rtd_theme==2.0.0",
 ]
 
 [tool.coverage.report]
@@ -51,12 +33,5 @@ addopts = """
 --cov-report term-missing \
 --cov . -ra"""
 
-# Inherit ruff rules from root. Do not add project-specific as will mismatch with CI.
-[tool.ruff]
-extend = "../../../.ruff.toml"
-
 [tool.uv]
 no-build-isolation-package = []
-
-[tool.uv.extra-build-dependencies]
-flash-attn = ["torch"]

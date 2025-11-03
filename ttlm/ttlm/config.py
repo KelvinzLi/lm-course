@@ -15,22 +15,23 @@ import ttlm.tokenizer.ascii
 HIDDEN_DIM_DIVISOR = 64
 FF_DIM_MULTIPLIER = 4
 
+
 @dataclass
 class DataConfig:
     """Configuration for data loading and processing."""
-    parquet_path: str = "../../../../tinyshakespeare.parquet"
+
     batch_size: int = 32
     num_workers: int = 0
     pin_memory: bool = False
     shuffle: bool = True
 
+
 @dataclass
 class TokenizerConfig:
     """Configuration for tokenizer."""
 
-    module: type[ttlm.tokenizer.base.Tokenizer] = (
-        ttlm.tokenizer.ascii.AsciiTokenizer
-    )
+    module: type[ttlm.tokenizer.base.Tokenizer] = ttlm.tokenizer.ascii.AsciiTokenizer
+
 
 @dataclass
 class ModelConfig:
@@ -44,6 +45,7 @@ class ModelConfig:
     dropout: float = 0.1
     num_parameters: int | None = None
 
+
 @dataclass
 class OptimizerConfig:
     """Configuration for the optimizer."""
@@ -53,6 +55,7 @@ class OptimizerConfig:
     weight_decay: float = 0.1
     betas: tuple[float, float] = (0.9, 0.95)
     eps: float = 1e-8
+
 
 @dataclass
 class SchedulerConfig:
@@ -101,7 +104,10 @@ class PreTrainingConfig:
 
         os.makedirs(self.ckpt_path, exist_ok=True)
         if self.dtype not in (torch.float16, torch.bfloat16):
-            warnings.warn("flash_attn requires float16 or bfloat16 dtype, make sure you're not using it", UserWarning)
+            warnings.warn(
+                "flash_attn requires float16 or bfloat16 dtype, make sure you're not using it",
+                UserWarning,
+            )
 
     def to_yaml(self, path: str | Path) -> None:
         """Save configuration to YAML file."""
@@ -112,7 +118,9 @@ class PreTrainingConfig:
     def to_dict(self) -> dict:
         """Convert to dictionary."""
         data = asdict(self)
-        data["dtype"] = str(self.dtype) # torch type is too annoying to serialize automatically
+        data["dtype"] = str(
+            self.dtype
+        )  # torch type is too annoying to serialize automatically
         return data
 
     @classmethod
