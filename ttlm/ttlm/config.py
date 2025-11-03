@@ -38,7 +38,7 @@ class ModelConfig:
     """Configuration for the model architecture."""
 
     module: type[torch.nn.Module] = ttlm.model.Model
-    hidden_dim: int = 512
+    hidden_dim: int = 128
     num_layers: int | None = None
     num_heads: int | None = None
     ff_dim: int | None = None
@@ -103,11 +103,6 @@ class PreTrainingConfig:
             self.model.ff_dim = self.model.hidden_dim * FF_DIM_MULTIPLIER
 
         os.makedirs(self.ckpt_path, exist_ok=True)
-        if self.dtype not in (torch.float16, torch.bfloat16):
-            warnings.warn(
-                "flash_attn requires float16 or bfloat16 dtype, make sure you're not using it",
-                UserWarning,
-            )
 
     def to_yaml(self, path: str | Path) -> None:
         """Save configuration to YAML file."""
