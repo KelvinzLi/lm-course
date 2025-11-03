@@ -14,7 +14,11 @@ uv sync
 uv run python -m scripts.pretrain --experiment=default # (or any other experiment, like default_cpu for cpu only job)
 ```
 
-## A workflow for Google Colab
+## Quick Start (Google Colab)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/cottascience/lm-course/blob/master/ttlm/notebook.ipynb)
+
+## A workflow for ssh in Google Colab
 
 (You only need to do 1-3 once)
 1. Fork this repository to your own account.
