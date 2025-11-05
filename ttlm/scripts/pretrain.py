@@ -25,6 +25,12 @@ def pretrain(config: PreTrainingConfig) -> None:
     with World(device=config.device) as world:
         tokenizer = config.tokenizer.module()
         dataset = TinyStories()
+        
+        texts = []
+        for ii in range(len(dataset)):
+            texts.append(dataset[ii])
+        tokenizer.train(texts, num_merges = config.tokenizer.num_merges)
+        
         sampler = (
             DistributedSampler(dataset, drop_last=True) if world.distributed else None
         )

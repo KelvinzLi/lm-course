@@ -11,6 +11,7 @@ import yaml
 
 import ttlm.model
 import ttlm.tokenizer.ascii
+import ttlm.tokenizer.bpe
 
 HIDDEN_DIM_DIVISOR = 64
 FF_DIM_MULTIPLIER = 4
@@ -30,7 +31,9 @@ class DataConfig:
 class TokenizerConfig:
     """Configuration for tokenizer."""
 
-    module: type[ttlm.tokenizer.base.Tokenizer] = ttlm.tokenizer.ascii.AsciiTokenizer
+    # module: type[ttlm.tokenizer.base.Tokenizer] = ttlm.tokenizer.ascii.AsciiTokenizer
+    module: type[ttlm.tokenizer.base.Tokenizer] = ttlm.tokenizer.bpe.BPETokenizer
+    num_merges: int = 100
 
 
 @dataclass
